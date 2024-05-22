@@ -10,7 +10,7 @@ a challenge for platforms that want to keep the number of capabilities they issu
 for their users to a minimum.
 
 These platforms could choose to iterate over all controllers on a storage path they want
-to have access to and choose one that matches their desired type, but that has two challengnes:
+to have access to and choose one that matches their desired type, but that has a few challengnes:
 
 - How do you know the capability you are using isn't slated to be removed by another platform
     when they no longer need it?
