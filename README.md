@@ -55,7 +55,7 @@ transaction(namespace: String) {
 import "CapabilityCache"
 
 transaction(namespace: String, type: Type, path: StoragePath) {
-    prepare(acct: auth(Storage, Capabilities) &Account) {
+    prepare(acct: auth(SaveValue, BorrowValue, IssueStorageCapabilityController) &Account) {
         let s = CapabilityCache.getPathForCache(namespace)
         if acct.storage.borrow<&CapabilityCache.Cache>(from: s) == nil {
             let c <- CapabilityCache.createCache(namespace: namespace)
