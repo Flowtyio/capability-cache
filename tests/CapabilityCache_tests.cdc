@@ -44,7 +44,7 @@ access(all) fun testBorrowCachedCapability() {
     addTypeToCache(acct, namespace: DefaultNamespace, resourceType: Type<@FlowToken.Vault>(), capIssueType: t, path: s)
 
     let capType = CapabilityType(t)!
-    txExecutor("get_ft_provider_capability_from_cache.cdc", [acct], [DefaultNamespace, Type<@FlowToken.Vault>(), capType])
+    txExecutor("compare_cached_capability_type.cdc", [acct], [DefaultNamespace, Type<@FlowToken.Vault>(), capType])
 }
 
 access(all) fun testRemoveCachedCapability() {
@@ -60,6 +60,30 @@ access(all) fun testRemoveCachedCapability() {
     let removeEvent = Test.eventsOfType(Type<CapabilityCache.CapabilityRemoved>()).removeLast() as! CapabilityCache.CapabilityRemoved
 
     Test.assertEqual(addEvent.capabilityID, removeEvent.capabilityID)
+}
+
+access(all) fun testInsertCapability_ExistingResourceType() {
+    let acct = getNewAccount()
+    let s = /storage/flowTokenVault
+    let t1 = Type<auth(FungibleToken.Withdraw) &{FungibleToken.Provider}>()
+    
+    addTypeToCache(acct, namespace: DefaultNamespace, resourceType: Type<@FlowToken.Vault>(), capIssueType: t1, path: s)
+
+    // add another capability which doesn't match the one we already inserted.
+    let t2 = Type<&{FungibleToken.Provider}>()
+    addTypeToCache(acct, namespace: DefaultNamespace, resourceType: Type<@FlowToken.Vault>(), capIssueType: t2, path: s)
+
+    // now reach both back and make sure they are borrowable
+    txExecutor("compare_cached_capability_type.cdc", [acct], [DefaultNamespace, Type<@FlowToken.Vault>(), CapabilityType(t1)!])
+    txExecutor("compare_cached_capability_type.cdc", [acct], [DefaultNamespace, Type<@FlowToken.Vault>(), CapabilityType(t2)!])
+}
+
+access(all) fun testGetCapabilityByType_NoResourceType() {
+    let acct = getNewAccount()
+    setupCache(acct, namespace: DefaultNamespace)
+
+    let res = scriptExecutor("get_cached_capability_type.cdc", [acct.address, DefaultNamespace, Type<@FlowToken.Vault>(), Type<&FlowToken.Vault>()])
+    Test.assertEqual(nil, res)
 }
 
 // Helper Methods For tests
