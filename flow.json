@@ -28,7 +28,7 @@
       }
     },
     "testnet-account": {
-      "address": "0x6340b2ab38404605",
+      "address": "0x83d75469f66d2ee6",
       "key": {
         "type": "google-kms",
         "index": 0,
