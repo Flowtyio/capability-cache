@@ -1,6 +1,6 @@
 import "CapabilityCache"
 
-transaction(namespace: String, type: Type, path: StoragePath) {
+transaction(namespace: String, resourceType: Type, capIssueType: Type, path: StoragePath) {
     prepare(acct: auth(SaveValue, BorrowValue, IssueStorageCapabilityController) &Account) {
         let s = CapabilityCache.getPathForCache(namespace)
         if acct.storage.borrow<&CapabilityCache.Cache>(from: s) == nil {
@@ -11,7 +11,7 @@ transaction(namespace: String, type: Type, path: StoragePath) {
         let cache = acct.storage.borrow<auth(CapabilityCache.Add) &CapabilityCache.Cache>(from: s)
             ?? panic("capability cache was not found")
 
-        let cap = acct.capabilities.storage.issueWithType(path, type: type)
-        cache.addCapability(cap: cap, type: type)
+        let cap = acct.capabilities.storage.issueWithType(path, type: capIssueType)
+        cache.addCapability(resourceType: resourceType, cap: cap)
     }
 }

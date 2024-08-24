@@ -26,13 +26,25 @@
         "type": "file",
         "location": "emulator-account.pkey"
       }
+    },
+    "testnet-account": {
+      "address": "0x6340b2ab38404605",
+      "key": {
+        "type": "google-kms",
+        "index": 0,
+        "signatureAlgorithm": "ECDSA_P256",
+        "hashAlgorithm": "SHA2_256",
+        "resourceID": "projects/flowty-test/locations/global/keyRings/flow/cryptoKeys/capability-cache/cryptoKeyVersions/1"
+      }
     }
   },
   "contracts": {
     "CapabilityCache": {
       "source": "./contracts/CapabilityCache.cdc",
       "aliases": {
-        "testing": "0x0000000000000007"
+        "testing": "0x0000000000000007",
+        "emulator": "0xf8d6e0586b0a20c7",
+        "testnet": "0x83d75469f66d2ee6"
       }
     },
     "FungibleToken": {
@@ -107,6 +119,11 @@
       ],
       "emulator-flowtoken": [
         "FlowToken"
+      ]
+    },
+    "testnet": {
+      "testnet-account": [
+        "CapabilityCache"
       ]
     }
   }
