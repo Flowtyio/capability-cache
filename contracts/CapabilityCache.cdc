@@ -12,15 +12,6 @@ access(all) contract CapabilityCache {
     access(all) event CapabilityAdded(owner: Address?, cacheUuid: UInt64, namespace: String, resourceType: Type, capabilityType: Type, capabilityID: UInt64)
     access(all) event CapabilityRemoved(owner: Address?, cacheUuid: UInt64, namespace: String, resourceType: Type, capabilityType: Type, capabilityID: UInt64)
 
-    // Add to a namespace
-    access(all) entitlement Add
-
-    // Remove from a namespace
-    access(all) entitlement Delete
-
-    // Retrieve a cap from the namespace
-    access(all) entitlement Get
-
     // Resource that manages capabilities for a provided namespace. Only one capability is permitted per type.
     access(all) resource Cache {
         // A dictionary of resourceType -> CapabilityType -> Capability
@@ -33,8 +24,8 @@ access(all) contract CapabilityCache {
         access(all) let namespace: String
 
         // Remove a capability, if it exists, 
-        access(Delete) fun removeCapabilityByType(resourceType: Type, capabilityType: Type): Capability? {
-            if let ref = &self.caps[resourceType] as auth(Mutate) &{Type: Capability}? {
+        access(all) fun removeCapabilityByType(resourceType: Type, capabilityType: Type): Capability? {
+            if let ref = &self.caps[resourceType] as &{Type: Capability}? {
                 let cap = ref.remove(key: capabilityType)
                 if cap != nil {
                     emit CapabilityRemoved(owner: self.owner?.address, cacheUuid: self.uuid, namespace: self.namespace, resourceType: resourceType, capabilityType: capabilityType, capabilityID: cap!.id)
@@ -46,14 +37,14 @@ access(all) contract CapabilityCache {
 
         // Adds a capability to the cache. If there is already an entry for the given type,
         // it will be returned
-        access(Add) fun addCapability(resourceType: Type, cap: Capability): Capability? {
+        access(all) fun addCapability(resourceType: Type, cap: Capability): Capability? {
             pre {
                 cap.id != 0: "cannot add a capability with id 0"
             }
 
             let capType = cap.getType()
             emit CapabilityAdded(owner: self.owner?.address, cacheUuid: self.uuid, namespace: self.namespace, resourceType: resourceType, capabilityType: capType, capabilityID: cap.id)
-            if let ref = &self.caps[resourceType] as auth(Mutate) &{Type: Capability}? {
+            if let ref = &self.caps[resourceType] as &{Type: Capability}? {
                 return ref.insert(key: capType, cap)
             }
 
@@ -65,7 +56,7 @@ access(all) contract CapabilityCache {
         }
 
         // Retrieve a capability key'd by a given type.
-        access(Get) fun getCapabilityByType(resourceType: Type, capabilityType: Type): Capability? {
+        access(all) fun getCapabilityByType(resourceType: Type, capabilityType: Type): Capability? {
             if let tmp = self.caps[resourceType] {
                 return tmp[capabilityType]
             }
