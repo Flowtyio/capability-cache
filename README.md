@@ -54,7 +54,7 @@ transaction(namespace: String) {
 ```cadence
 import "CapabilityCache"
 
-transaction(namespace: String, type: Type, path: StoragePath) {
+transaction(namespace: String, resourceType: Type, capabilityBorrowType: Type, path: StoragePath) {
     prepare(acct: auth(SaveValue, BorrowValue, IssueStorageCapabilityController) &Account) {
         let s = CapabilityCache.getPathForCache(namespace)
         if acct.storage.borrow<&CapabilityCache.Cache>(from: s) == nil {
@@ -65,8 +65,8 @@ transaction(namespace: String, type: Type, path: StoragePath) {
         let cache = acct.storage.borrow<auth(CapabilityCache.Add) &CapabilityCache.Cache>(from: s)
             ?? panic("capability cache was not found")
 
-        let cap = acct.capabilities.storage.issueWithType(path, type: type)
-        cache.addCapability(cap: cap, type: type)
+        let cap = acct.capabilities.storage.issueWithType(path, type: capabilityBorrowType)
+        cache.addCapability(resourceType: resourceType, cap: cap)
     }
 }
 ```
@@ -75,15 +75,16 @@ transaction(namespace: String, type: Type, path: StoragePath) {
 ```cadence
 import "CapabilityCache"
 import "FungibleToken"
+import "FlowToken"
 
 transaction(namespace: String) {
     prepare(acct: auth(BorrowValue) &Account) {
-        let type = Type<auth(FungibleToken.Withdraw) &{FungibleToken.Provider}>()
+        let capType = Type<auth(FungibleToken.Withdraw) &{FungibleToken.Provider}>()
 
         let s = CapabilityCache.getPathForCache(namespace)
         let cache = acct.storage.borrow<auth(CapabilityCache.Get) &CapabilityCache.Cache>(from: s)
             ?? panic("cache not found in storage")
-        let cap = cache.getCapabilityByType(type)
+        let cap = cache.getCapabilityByType(resourceType: Type<@FlowToken.Vault>(), capabilityType: CapabilityType(capType)!)
             ?? panic("capability not found with provided type")
         let casted = cap as! Capability<auth(FungibleToken.Withdraw) &{FungibleToken.Provider}>
         casted.borrow() ?? panic("failed to borrow provider capability")
@@ -96,13 +97,13 @@ transaction(namespace: String) {
 ```cadence
 import "CapabilityCache"
 
-transaction(namespace: String, type: Type) {
+transaction(namespace: String, resourceType: Type, capabilityBorrowType: Type) {
     prepare(acct: auth(BorrowValue) &Account) {
         let s = CapabilityCache.getPathForCache(namespace)
         let cache = acct.storage.borrow<auth(CapabilityCache.Delete) &CapabilityCache.Cache>(from: s)
             ?? panic("cache not found in storage")
 
-        cache.removeCapabilityByType(type)
+        cache.removeCapabilityByType(resourceType: resourceType, capabilityType: CapabilityType(capabilityBorrowType)!)
     }
 }
 ```
