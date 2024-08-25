@@ -36,6 +36,16 @@
         "hashAlgorithm": "SHA2_256",
         "resourceID": "projects/flowty-test/locations/global/keyRings/flow/cryptoKeys/capability-cache/cryptoKeyVersions/1"
       }
+    },
+    "mainnet-account": {
+      "address": "0xacc5081c003e24cf",
+      "key": {
+        "type": "google-kms",
+        "index": 0,
+        "signatureAlgorithm": "ECDSA_P256",
+        "hashAlgorithm": "SHA2_256",
+        "resourceID": "projects/flowty-prod/locations/global/keyRings/flow/cryptoKeys/capability-cache/cryptoKeyVersions/1"
+      }
     }
   },
   "contracts": {
@@ -44,7 +54,8 @@
       "aliases": {
         "testing": "0x0000000000000007",
         "emulator": "0xf8d6e0586b0a20c7",
-        "testnet": "0x83d75469f66d2ee6"
+        "testnet": "0x83d75469f66d2ee6",
+        "mainnet": "0xacc5081c003e24cf"
       }
     },
     "FungibleToken": {
@@ -123,6 +134,11 @@
     },
     "testnet": {
       "testnet-account": [
+        "CapabilityCache"
+      ]
+    },
+    "mainnet": {
+      "mainnet-account": [
         "CapabilityCache"
       ]
     }
